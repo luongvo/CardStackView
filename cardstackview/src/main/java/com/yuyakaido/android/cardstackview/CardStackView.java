@@ -70,6 +70,7 @@ public class CardStackView extends FrameLayout {
                 cardEventListener.onCardMovedToOrigin();
             }
         }
+
         @Override
         public void onContainerClicked() {
             if (cardEventListener != null) {
@@ -112,6 +113,11 @@ public class CardStackView extends FrameLayout {
             initializeCardStackPosition();
         }
     }
+
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        return super.onInterceptTouchEvent(ev);
+//    }
 
     private void initialize(boolean shouldReset) {
         resetIfNeeded(shouldReset);
