@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onCardClicked(int index) {
+
                 Log.d("CardStackView", "onCardClicked: " + index);
             }
         });

@@ -1,6 +1,7 @@
 package com.yuyakaido.android.cardstackview.sample;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,15 @@ public class TouristSpotCardAdapter extends ArrayAdapter<TouristSpot> {
         holder.ivInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.e("====", "hola clicked");
                 Toast.makeText(getContext(), "Go to info!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        holder.bt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("====", "hola clicked 2");
             }
         });
 
@@ -52,12 +61,14 @@ public class TouristSpotCardAdapter extends ArrayAdapter<TouristSpot> {
         public TextView city;
         public ImageView image;
         public ImageView ivInfo;
+        public Button bt;
 
         public ViewHolder(View view) {
             this.name = (TextView) view.findViewById(R.id.item_tourist_spot_card_name);
             this.city = (TextView) view.findViewById(R.id.item_tourist_spot_card_city);
             this.image = (ImageView) view.findViewById(R.id.item_tourist_spot_card_image);
             this.ivInfo = (ImageView) view.findViewById(R.id.iv_info);
+            this.bt = (Button) view.findViewById(R.id.bt);
         }
     }
 

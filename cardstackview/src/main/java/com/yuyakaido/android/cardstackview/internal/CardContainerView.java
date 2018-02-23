@@ -5,6 +5,7 @@ import android.graphics.Point;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,6 +19,7 @@ import com.yuyakaido.android.cardstackview.SwipeDirection;
 
 public class CardContainerView extends FrameLayout {
 
+    private static String TAG = CardContainerView.class.getSimpleName();
     private CardStackOption option;
 
     private float viewOriginX = 0f;
@@ -76,6 +78,96 @@ public class CardContainerView extends FrameLayout {
         overlayContainer = (ViewGroup) findViewById(R.id.card_frame_overlay_container);
     }
 
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent event) {
+//        super.dispatchTouchEvent(event);
+//        return true;
+//
+//                switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                initY = (int) event.getY();
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                if (Math.abs((int) event.getY() - initY) > THRESHOLD) {
+//                    return true;
+//                }
+//                break;
+////                if (((int) event.getY() - initY) > THRESHOLD) {
+////                    // move down
+//////                    return event.getY() >= appBarOffset && super.onInterceptTouchEvent(event);
+////                    return true;
+////                }
+////
+////                if (((int) event.getY() - initY) > -THRESHOLD) {
+////                    // move up
+//////                    return super.onInterceptTouchEvent(event);
+////                    return true;
+////                }
+////                break;
+////            case MotionEvent.ACTION_UP:
+////                if (Math.abs((int) event.getY() - initY) < THRESHOLD) {
+////                    return false;
+////                } else {
+////                    return true;
+////                }
+////                break;
+//        }
+//
+//
+//
+//
+//        // do what you need to with the event, and then...
+//        return super.dispatchTouchEvent(event);
+//        return true;
+////        return false;
+//
+//    }
+//
+//    private static int THRESHOLD = 20;
+//    private double initY;
+//
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent event) {
+////        return super.onInterceptTouchEvent(ev);
+////        return true;
+////        return false;
+//
+////        switch (event.getAction()) {
+////            case MotionEvent.ACTION_DOWN:
+////                initY = (int) event.getY();
+////                break;
+////            case MotionEvent.ACTION_MOVE:
+////                if (Math.abs((int) event.getY() - initY) < THRESHOLD) {
+////                    return false;
+////                }
+////                break;
+//////                if (((int) event.getY() - initY) > THRESHOLD) {
+//////                    // move down
+////////                    return event.getY() >= appBarOffset && super.onInterceptTouchEvent(event);
+//////                    return true;
+//////                }
+//////
+//////                if (((int) event.getY() - initY) > -THRESHOLD) {
+//////                    // move up
+////////                    return super.onInterceptTouchEvent(event);
+//////                    return true;
+//////                }
+//////                break;
+//////            case MotionEvent.ACTION_UP:
+//////                if (Math.abs((int) event.getY() - initY) < THRESHOLD) {
+//////                    return false;
+//////                } else {
+//////                    return true;
+//////                }
+//////                break;
+////        }
+//        return super.onInterceptTouchEvent(event);
+//    }
+
+    private static final int MIN_DISTANCE_X = 100;
+    private static final int MIN_DISTANCE_Y = 100;
+    private float downX, downY;
+
     /**
      * Spy or monitor all the events include those been sent to child views
      * ref: https://stackoverflow.com/a/35113182/2100084
@@ -86,11 +178,67 @@ public class CardContainerView extends FrameLayout {
         // the MotionEvent may have been canceled by the child view
         handleTouchEvent(event);
 
-        super.dispatchTouchEvent(event);
+        boolean send = true;
+//        switch (event.getAction()) {
+//            case MotionEvent.ACTION_DOWN:
+//                downX = event.getX();
+//                downY = event.getY();
+//                break;
+//            case MotionEvent.ACTION_MOVE:
+//                float upX = event.getX();
+//                float upY = event.getY();
+//                float deltaX = downX - upX;
+//                float deltaY = downY - upY;
+//
+//                if (Math.abs(deltaX) > MIN_DISTANCE_X || Math.abs(deltaY) > MIN_DISTANCE_Y) {
+//                    send = false;
+//                }
+//                break;
+//        }
+
+        if (send) {
+            super.dispatchTouchEvent(event);
+        }
 
         // to keep receive event that follow down event
         return true;
     }
+
+//    private static final int MIN_DISTANCE_X = 25;
+//    private static final int MIN_DISTANCE_Y = 5;
+//    private float downX, downY;
+//
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent event) {
+//        Log.d(TAG, "onInterceptTouchEvent : " + event.getAction());
+//
+////        switch (event.getAction()) {
+////
+////            case MotionEvent.ACTION_DOWN:
+////                downX = event.getX();
+////                downY = event.getY();
+////                break;
+////
+////            case MotionEvent.ACTION_UP:
+////
+////                float upX = event.getX();
+////                float upY = event.getY();
+////                float deltaX = downX - upX;
+////                float deltaY = downY - upY;
+////
+////                if (Math.abs(deltaX) < MIN_DISTANCE_X && Math.abs(deltaY) < MIN_DISTANCE_Y) {
+////                    return false;
+////                } else {
+////                    // todo
+////                }
+////        }
+//
+////        super.onTouchEvent(event);
+//        return super.onInterceptTouchEvent(event);
+//
+////        return true;
+//    }
+
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // OnTouchEvent is called manually, if OnTouchEvent propagates back to this layout do
@@ -111,6 +259,7 @@ public class CardContainerView extends FrameLayout {
                 getParent().getParent().requestDisallowInterceptTouchEvent(true);
                 break;
             case MotionEvent.ACTION_UP:
+                Log.e(TAG, "onTouchEvent" + event.getAction());
                 handleActionUp(event);
                 getParent().getParent().requestDisallowInterceptTouchEvent(false);
                 break;

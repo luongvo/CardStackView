@@ -45,6 +45,13 @@
 
         </LinearLayout>
 
+        <com.yuyakaido.android.cardstackview.sample.CustomButton
+            android:id="@+id/bt"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/bg_bt" />
+
         <ImageView
             android:id="@+id/iv_info"
             android:layout_width="wrap_content"
