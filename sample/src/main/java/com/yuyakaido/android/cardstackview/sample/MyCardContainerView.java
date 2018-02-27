@@ -21,11 +21,11 @@ public class MyCardContainerView extends CardContainerView {
      */
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
+        super.dispatchTouchEvent(event);
+
         // handle the motion event even if a child returns true in OnTouchEvent
         // the MotionEvent may have been canceled by the child view
         handleTouchEvent(event);
-
-        super.dispatchTouchEvent(event);
 
         // to keep receive event that follow down event
         return true;
