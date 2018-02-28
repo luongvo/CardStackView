@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Point;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v4.view.ViewCompat;
-import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,7 +12,6 @@ import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 
-import com.yuyakaido.android.cardstackview.R;
 import com.yuyakaido.android.cardstackview.SwipeDirection;
 
 public class CardContainerView extends FrameLayout {
@@ -48,33 +46,32 @@ public class CardContainerView extends FrameLayout {
 
     public interface ContainerEventListener {
         void onContainerDragging(float percentX, float percentY);
+
         void onContainerSwiped(Point point, SwipeDirection direction);
+
         void onContainerMovedToOrigin();
+
         void onContainerClicked();
     }
 
     public CardContainerView(Context context) {
-        this(context, null);
+        super(context);
+        initLayout();
     }
 
-    public CardContainerView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public CardContainerView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-    }
-
-    @Override
-    protected void onFinishInflate() {
-        super.onFinishInflate();
-        inflate(getContext(), R.layout.card_frame, this);
-        contentContainer = (ViewGroup) findViewById(R.id.card_frame_content_container);
-        overlayContainer = (ViewGroup) findViewById(R.id.card_frame_overlay_container);
+    private void initLayout() {
+        contentContainer = new FrameLayout(getContext());
+        overlayContainer = new FrameLayout(getContext());
+        addView(contentContainer);
+        addView(overlayContainer);
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        return handleTouchEvent(event);
+    }
+
+    protected boolean handleTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
 
         if (!option.isSwipeEnabled || !isDraggable) {
@@ -84,14 +81,14 @@ public class CardContainerView extends FrameLayout {
         switch (MotionEventCompat.getActionMasked(event)) {
             case MotionEvent.ACTION_DOWN:
                 handleActionDown(event);
-                getParent().getParent().requestDisallowInterceptTouchEvent(true);
+                getParent().requestDisallowInterceptTouchEvent(true);
                 break;
             case MotionEvent.ACTION_UP:
                 handleActionUp(event);
-                getParent().getParent().requestDisallowInterceptTouchEvent(false);
+                getParent().requestDisallowInterceptTouchEvent(false);
                 break;
             case MotionEvent.ACTION_CANCEL:
-                getParent().getParent().requestDisallowInterceptTouchEvent(false);
+                getParent().requestDisallowInterceptTouchEvent(false);
                 break;
             case MotionEvent.ACTION_MOVE:
                 handleActionMove(event);
@@ -154,7 +151,7 @@ public class CardContainerView extends FrameLayout {
                     radian = Math.toRadians(degree);
                     if (Math.cos(radian) < 0.5) {
                         direction = SwipeDirection.Bottom;
-                    }else{
+                    } else {
                         direction = SwipeDirection.Right;
                     }
                     break;
@@ -215,14 +212,14 @@ public class CardContainerView extends FrameLayout {
         float percentX = getPercentX();
         float percentY = getPercentY();
 
-        if (Math.abs(percentX) > Math.abs(percentY)){
+        if (Math.abs(percentX) > Math.abs(percentY)) {
             if (percentX < 0) {
                 showLeftOverlay();
             } else {
                 showRightOverlay();
             }
             setOverlayAlpha(Math.abs(percentX));
-        }else{
+        } else {
             if (percentY < 0) {
                 showTopOverlay();
             } else {
