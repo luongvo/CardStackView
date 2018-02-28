@@ -121,18 +121,18 @@ public class CardContainerView extends FrameLayout {
                     degree = 180 - degree;
                     radian = Math.toRadians(degree);
                     if (Math.cos(radian) < -0.5) {
-                        direction = SwipeDirection.Left;
+                        direction = SwipeDirection.LEFT;
                     } else {
-                        direction = SwipeDirection.Top;
+                        direction = SwipeDirection.TOP;
                     }
                     break;
                 case TopRight:
                     degree = Math.toDegrees(radian);
                     radian = Math.toRadians(degree);
                     if (Math.cos(radian) < 0.5) {
-                        direction = SwipeDirection.Top;
+                        direction = SwipeDirection.TOP;
                     } else {
-                        direction = SwipeDirection.Right;
+                        direction = SwipeDirection.RIGHT;
                     }
                     break;
                 case BottomLeft:
@@ -140,9 +140,9 @@ public class CardContainerView extends FrameLayout {
                     degree = 180 + degree;
                     radian = Math.toRadians(degree);
                     if (Math.cos(radian) < -0.5) {
-                        direction = SwipeDirection.Left;
+                        direction = SwipeDirection.LEFT;
                     } else {
-                        direction = SwipeDirection.Bottom;
+                        direction = SwipeDirection.BOTTOM;
                     }
                     break;
                 case BottomRight:
@@ -150,15 +150,15 @@ public class CardContainerView extends FrameLayout {
                     degree = 360 - degree;
                     radian = Math.toRadians(degree);
                     if (Math.cos(radian) < 0.5) {
-                        direction = SwipeDirection.Bottom;
+                        direction = SwipeDirection.BOTTOM;
                     } else {
-                        direction = SwipeDirection.Right;
+                        direction = SwipeDirection.RIGHT;
                     }
                     break;
             }
 
             float percent = 0f;
-            if (direction == SwipeDirection.Left || direction == SwipeDirection.Right) {
+            if (direction == SwipeDirection.LEFT || direction == SwipeDirection.RIGHT) {
                 percent = getPercentX();
             } else {
                 percent = getPercentY();
@@ -308,7 +308,7 @@ public class CardContainerView extends FrameLayout {
     }
 
     public void showLeftOverlay() {
-        if (leftOverlayView != null) {
+        if (leftOverlayView != null && option.swipeDirection.contains(SwipeDirection.LEFT)) {
             ViewCompat.setAlpha(leftOverlayView, 1f);
         }
         if (rightOverlayView != null) {
@@ -335,7 +335,7 @@ public class CardContainerView extends FrameLayout {
             ViewCompat.setAlpha(topOverlayView, 0f);
         }
 
-        if (rightOverlayView != null) {
+        if (rightOverlayView != null && option.swipeDirection.contains(SwipeDirection.RIGHT)) {
             ViewCompat.setAlpha(rightOverlayView, 1f);
         }
     }
@@ -345,7 +345,7 @@ public class CardContainerView extends FrameLayout {
             ViewCompat.setAlpha(leftOverlayView, 0f);
         }
 
-        if (bottomOverlayView != null) {
+        if (bottomOverlayView != null && option.swipeDirection.contains(SwipeDirection.BOTTOM)) {
             ViewCompat.setAlpha(bottomOverlayView, 1f);
         }
 
@@ -368,7 +368,7 @@ public class CardContainerView extends FrameLayout {
             ViewCompat.setAlpha(bottomOverlayView, 0f);
         }
 
-        if (topOverlayView != null) {
+        if (topOverlayView != null && option.swipeDirection.contains(SwipeDirection.TOP)) {
             ViewCompat.setAlpha(topOverlayView, 1f);
         }
 
