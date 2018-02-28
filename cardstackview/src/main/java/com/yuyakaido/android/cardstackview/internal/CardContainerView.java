@@ -308,7 +308,7 @@ public class CardContainerView extends FrameLayout {
     }
 
     public void showLeftOverlay() {
-        if (leftOverlayView != null) {
+        if (leftOverlayView != null && option.swipeDirection.contains(SwipeDirection.Left)) {
             ViewCompat.setAlpha(leftOverlayView, 1f);
         }
         if (rightOverlayView != null) {
@@ -335,7 +335,7 @@ public class CardContainerView extends FrameLayout {
             ViewCompat.setAlpha(topOverlayView, 0f);
         }
 
-        if (rightOverlayView != null) {
+        if (rightOverlayView != null && option.swipeDirection.contains(SwipeDirection.Right)) {
             ViewCompat.setAlpha(rightOverlayView, 1f);
         }
     }
@@ -345,7 +345,7 @@ public class CardContainerView extends FrameLayout {
             ViewCompat.setAlpha(leftOverlayView, 0f);
         }
 
-        if (bottomOverlayView != null) {
+        if (bottomOverlayView != null && option.swipeDirection.contains(SwipeDirection.Bottom)) {
             ViewCompat.setAlpha(bottomOverlayView, 1f);
         }
 
@@ -368,7 +368,7 @@ public class CardContainerView extends FrameLayout {
             ViewCompat.setAlpha(bottomOverlayView, 0f);
         }
 
-        if (topOverlayView != null) {
+        if (topOverlayView != null && option.swipeDirection.contains(SwipeDirection.Top)) {
             ViewCompat.setAlpha(topOverlayView, 1f);
         }
 
