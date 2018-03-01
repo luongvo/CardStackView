@@ -197,7 +197,7 @@ public class CardStackView extends FrameLayout {
     }
 
     private void loadNextView() {
-        int lastIndex = state.topIndex + option.visibleCount - 1;
+        int lastIndex = findAvailableIndex(state.topIndex + option.visibleCount - 1, true);
         boolean hasNextCard = lastIndex < adapter.getCount();
         if (hasNextCard) {
             CardContainerView container = getBottomView();
@@ -355,11 +355,16 @@ public class CardStackView extends FrameLayout {
     private void executePostSwipeTask(Point point, SwipeDirection direction) {
         reorderForSwipe();
 
-        state.lastPoint = point;
+        // TODO only reverse left example
+        if (direction == SwipeDirection.LEFT) {
+            state.lastPoint = point;
+        } else {
+            state.unavailableIndexs.add(state.topIndex);
+        }
 
         initializeCardStackPosition();
 
-        state.topIndex++;
+        state.topIndex = findAvailableIndex(state.topIndex + 1, true);
 
         if (cardEventListener != null) {
             cardEventListener.onCardSwiped(direction);
@@ -376,7 +381,7 @@ public class CardStackView extends FrameLayout {
 
         initializeCardStackPosition();
 
-        state.topIndex--;
+        state.topIndex = findAvailableIndex(state.topIndex - 1, false);
 
         if (cardEventListener != null) {
             cardEventListener.onCardReversed();
@@ -518,10 +523,11 @@ public class CardStackView extends FrameLayout {
     }
 
     public void reverse() {
-        if (state.lastPoint != null) {
+        int revertIndex = findAvailableIndex(state.topIndex - 1, false);
+        if (state.lastPoint != null && revertIndex >= 0) {
             CardContainerView container = getBottomView();
             ViewGroup parent = container.getContentContainer();
-            View prevView = adapter.getView(state.topIndex - 1, null, parent);
+            View prevView = adapter.getView(revertIndex, null, parent);
             performReverse(state.lastPoint, prevView, new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animator) {
@@ -543,4 +549,10 @@ public class CardStackView extends FrameLayout {
         return state.topIndex;
     }
 
+    private int findAvailableIndex(int index, boolean moveForward) {
+        while (state.unavailableIndexs.contains(index)) {
+            index = index + (moveForward ? 1 : -1);
+        }
+        return index;
+    }
 }
