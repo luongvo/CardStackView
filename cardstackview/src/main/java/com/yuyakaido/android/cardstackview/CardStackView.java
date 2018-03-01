@@ -529,7 +529,7 @@ public class CardStackView extends FrameLayout {
 
     public void reverse() {
         int revertIndex = findAvailableIndex(state.topIndex - 1, false);
-        if (state.lastPoint != null && revertIndex >= 0) {
+        if (isReversible() && revertIndex >= 0) {
             CardContainerView container = getBottomView();
             ViewGroup parent = container.getContentContainer();
             View prevView = adapter.getView(revertIndex, null, parent);
@@ -552,6 +552,10 @@ public class CardStackView extends FrameLayout {
 
     public int getTopIndex() {
         return state.topIndex;
+    }
+
+    public boolean isReversible() {
+        return state.lastPoint != null;
     }
 
     private int findAvailableIndex(int index, boolean moveForward) {
