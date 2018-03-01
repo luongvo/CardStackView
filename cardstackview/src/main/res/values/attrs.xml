@@ -19,6 +19,13 @@
             <enum name="vertical" value="3"/>
             <enum name="none" value="4" />
         </attr>
+        <attr name="reverseDirection" format="enum">
+            <enum name="freedom" value="0" />
+            <enum name="freedom_no_bottom" value="1" />
+            <enum name="horizontal" value="2" />
+            <enum name="vertical" value="3" />
+            <enum name="none" value="4" />
+        </attr>
         <attr name="leftOverlay" format="reference"/>
         <attr name="rightOverlay" format="reference"/>
         <attr name="bottomOverlay" format="reference"/>

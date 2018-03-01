@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.TimeInterpolator;
+import android.annotation.NonNull;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
@@ -107,6 +108,7 @@ public class CardStackView extends FrameLayout {
         setElevationEnabled(array.getBoolean(R.styleable.CardStackView_elevationEnabled, option.isElevationEnabled));
         setSwipeEnabled(array.getBoolean(R.styleable.CardStackView_swipeEnabled, option.isSwipeEnabled));
         setSwipeDirection(SwipeDirection.from(array.getInt(R.styleable.CardStackView_swipeDirection, 0)));
+        setReverseDirection(SwipeDirection.from(array.getInt(R.styleable.CardStackView_reverseDirection, 0)));
         setLeftOverlay(array.getResourceId(R.styleable.CardStackView_leftOverlay, 0));
         setRightOverlay(array.getResourceId(R.styleable.CardStackView_rightOverlay, 0));
         setBottomOverlay(array.getResourceId(R.styleable.CardStackView_bottomOverlay, 0));
@@ -355,8 +357,7 @@ public class CardStackView extends FrameLayout {
     private void executePostSwipeTask(Point point, SwipeDirection direction) {
         reorderForSwipe();
 
-        // TODO only reverse left example
-        if (direction == SwipeDirection.LEFT) {
+        if (option.reverseDirection.contains(direction)) {
             state.lastPoint = point;
         } else {
             state.unavailableIndexs.add(state.topIndex);
@@ -456,11 +457,15 @@ public class CardStackView extends FrameLayout {
         }
     }
 
-    public void setSwipeDirection(List<SwipeDirection> swipeDirection) {
+    public void setSwipeDirection(@NonNull List<SwipeDirection> swipeDirection) {
         option.swipeDirection = swipeDirection;
         if (adapter != null) {
             initialize(false);
         }
+    }
+
+    public void setReverseDirection(@NonNull List<SwipeDirection> reverseDirection) {
+        option.reverseDirection = reverseDirection;
     }
 
     public void setLeftOverlay(int leftOverlay) {
