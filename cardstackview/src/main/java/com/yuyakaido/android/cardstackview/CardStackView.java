@@ -200,7 +200,14 @@ public class CardStackView extends FrameLayout {
     }
 
     private void loadNextView() {
-        int lastIndex = findAvailableIndex(state.topIndex + option.visibleCount - 1, true);
+        int lastIndex = findAvailableIndex(state.topIndex + option.visibleCount - 1, true, false);
+        // increase index by unavailable items
+        for (int i = state.topIndex + 1; i < state.topIndex + option.visibleCount; i++) {
+            if (state.swipedItems.get(i) != null) {
+                lastIndex++;
+            }
+        }
+
         boolean hasNextCard = lastIndex < adapter.getCount();
         if (hasNextCard) {
             CardContainerView container = getBottomView();
@@ -523,7 +530,11 @@ public class CardStackView extends FrameLayout {
     }
 
     public void reverse() {
-        final int reverseIndex = findAvailableIndex(state.topIndex - 1, false);
+        reverse(true);
+    }
+
+    public void reverse(boolean directionLimit) {
+        final int reverseIndex = findAvailableIndex(state.topIndex - 1, false, directionLimit);
         if (!state.isReversing && reverseIndex >= 0) {
             state.isReversing = true;
             CardContainerView container = getBottomView();
@@ -554,13 +565,24 @@ public class CardStackView extends FrameLayout {
     }
 
     public boolean isReversible() {
-        return findAvailableIndex(state.topIndex - 1, false) >= 0;
+        return isReversible(true);
+    }
+
+    public boolean isReversible(boolean directionLimit) {
+        return findAvailableIndex(state.topIndex - 1, false, directionLimit) >= 0;
     }
 
     private int findAvailableIndex(int index, boolean moveForward) {
-        while (state.swipedItems.get(index) != null &&
-                !option.reverseDirection.contains(state.swipedItems.get(index).getDirection())) {
-            index = index + (moveForward ? 1 : -1);
+        return findAvailableIndex(index, moveForward, true);
+    }
+
+    private int findAvailableIndex(int index, boolean moveForward, boolean directionLimit) {
+        while (state.swipedItems.get(index) != null) {
+            if (directionLimit && !option.reverseDirection.contains(state.swipedItems.get(index).getDirection())) {
+                index = index + (moveForward ? 1 : -1);
+            } else {
+                break;
+            }
         }
         return index;
     }
