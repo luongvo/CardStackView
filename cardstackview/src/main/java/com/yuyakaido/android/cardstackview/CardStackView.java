@@ -108,6 +108,7 @@ public class CardStackView extends FrameLayout {
         setStackFrom(StackFrom.values()[array.getInt(R.styleable.CardStackView_stackFrom, option.stackFrom.ordinal())]);
         setElevationEnabled(array.getBoolean(R.styleable.CardStackView_elevationEnabled, option.isElevationEnabled));
         setSwipeEnabled(array.getBoolean(R.styleable.CardStackView_swipeEnabled, option.isSwipeEnabled));
+        setMultipleReverseEnabled(array.getBoolean(R.styleable.CardStackView_multipleReverseEnabled, option.isMultipleReverseEnabled));
         setSwipeDirection(SwipeDirection.from(array.getInt(R.styleable.CardStackView_swipeDirection, 0)));
         setReverseDirection(SwipeDirection.from(array.getInt(R.styleable.CardStackView_reverseDirection, 0)));
         setLeftOverlay(array.getResourceId(R.styleable.CardStackView_leftOverlay, 0));
@@ -275,6 +276,9 @@ public class CardStackView extends FrameLayout {
     }
 
     public void performReverse(Point point, View prevView, final Animator.AnimatorListener listener) {
+        // disable draggable the top card will be reordered to the second
+        getTopView().setDraggable(false);
+
         reorderForReverse(prevView);
         CardContainerView topView = getTopView();
         ViewCompat.setTranslationX(topView, point.x);
@@ -367,6 +371,9 @@ public class CardStackView extends FrameLayout {
 
         initializeCardStackPosition();
 
+        if (!option.isMultipleReverseEnabled) {
+            state.swipedItems.clear();
+        }
         state.swipedItems.put(state.topIndex, new SwipedItem(point, direction));
         state.topIndex = findAvailableIndex(state.topIndex + 1, true);
 
@@ -457,6 +464,10 @@ public class CardStackView extends FrameLayout {
         if (adapter != null) {
             initialize(false);
         }
+    }
+
+    public void setMultipleReverseEnabled(boolean isMultipleReverseEnabled) {
+        option.isMultipleReverseEnabled = isMultipleReverseEnabled;
     }
 
     public void setSwipeDirection(@NonNull List<SwipeDirection> swipeDirection) {
