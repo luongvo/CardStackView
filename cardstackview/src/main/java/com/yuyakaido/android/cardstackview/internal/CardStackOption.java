@@ -13,9 +13,11 @@ public class CardStackOption {
     public StackFrom stackFrom = StackFrom.DEFAULT;
     public boolean isElevationEnabled = true;
     public boolean isSwipeEnabled = true;
+    public boolean isMultipleReverseEnabled = false;
     public int leftOverlay = 0; // Layout Resource ID
     public int rightOverlay = 0; // Layout Resource ID
     public int bottomOverlay = 0; // Layout Resource ID
     public int topOverlay = 0; // Layout Resource ID
     public List<SwipeDirection> swipeDirection = SwipeDirection.FREEDOM;
+    public List<SwipeDirection> reverseDirection = SwipeDirection.FREEDOM;
 }
