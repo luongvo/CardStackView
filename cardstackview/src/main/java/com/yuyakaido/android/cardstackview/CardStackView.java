@@ -371,9 +371,16 @@ public class CardStackView extends FrameLayout {
 
         initializeCardStackPosition();
 
-        if (!option.isMultipleReverseEnabled) {
-            state.swipedItems.clear();
+        if (!option.isMultipleReverseEnabled && option.reverseDirection.contains(direction)) {
+            // disable previous reversible swiped items
+            for (int i = 0; i < state.swipedItems.size(); i++) {
+                SwipedItem swipedItem = state.swipedItems.valueAt(i);
+                if (swipedItem != null && option.reverseDirection.contains(swipedItem.getDirection())) {
+                    state.swipedItems.setValueAt(i, null);
+                }
+            }
         }
+
         state.swipedItems.put(state.topIndex, new SwipedItem(point, direction));
         state.topIndex = findAvailableIndex(state.topIndex + 1, true);
 
@@ -546,14 +553,14 @@ public class CardStackView extends FrameLayout {
 
     public void reverse(boolean directionLimit) {
         final int reverseIndex = findAvailableIndex(state.topIndex - 1, false, directionLimit);
-        if (!state.isReversing && reverseIndex >= 0) {
+        SwipedItem swipedItem = state.swipedItems.get(reverseIndex);
+        if (!state.isReversing && swipedItem != null) {
             state.isReversing = true;
             CardContainerView container = getBottomView();
             ViewGroup parent = container.getContentContainer();
             View prevView = adapter.getView(reverseIndex, null, parent);
-            Point point = state.swipedItems.get(reverseIndex).getPoint();
 
-            performReverse(point, prevView, new AnimatorListenerAdapter() {
+            performReverse(swipedItem.getPoint(), prevView, new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animator) {
                     executePostReverseTask(reverseIndex);
