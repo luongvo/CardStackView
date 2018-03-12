@@ -12,6 +12,7 @@ public class SwipedItem {
 
     private Point point;
     private SwipeDirection direction;
+    private boolean enable = true;
 
     public SwipedItem(Point point, SwipeDirection direction) {
         this.point = point;
@@ -24,5 +25,13 @@ public class SwipedItem {
 
     public SwipeDirection getDirection() {
         return direction;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }

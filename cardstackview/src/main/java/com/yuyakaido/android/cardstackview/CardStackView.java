@@ -201,12 +201,15 @@ public class CardStackView extends FrameLayout {
     }
 
     private void loadNextView() {
-        int lastIndex = findAvailableIndex(state.topIndex + option.visibleCount - 1, true, false);
         // increase index by unavailable items
-        for (int i = state.topIndex + 1; i < state.topIndex + option.visibleCount; i++) {
-            if (state.swipedItems.get(i) != null) {
-                lastIndex++;
+        int lastIndex = state.topIndex;
+        int i = 1;
+        while (i < option.visibleCount) {
+            SwipedItem swipedItem = state.swipedItems.get(lastIndex + 1);
+            if (swipedItem == null || swipedItem.isEnable()) {
+                i++;
             }
+            lastIndex++;
         }
 
         boolean hasNextCard = lastIndex < adapter.getCount();
@@ -372,11 +375,11 @@ public class CardStackView extends FrameLayout {
         initializeCardStackPosition();
 
         if (!option.isMultipleReverseEnabled && option.reverseDirection.contains(direction)) {
-            // disable previous reversible swiped items
+            // disable previous reversible swiped items for single reversing mode
             for (int i = 0; i < state.swipedItems.size(); i++) {
                 SwipedItem swipedItem = state.swipedItems.valueAt(i);
-                if (swipedItem != null && option.reverseDirection.contains(swipedItem.getDirection())) {
-                    state.swipedItems.setValueAt(i, null);
+                if (option.reverseDirection.contains(swipedItem.getDirection())) {
+                    swipedItem.setEnable(false);
                 }
             }
         }
@@ -397,8 +400,12 @@ public class CardStackView extends FrameLayout {
     private void executePostReverseTask(int reverseIndex) {
         initializeCardStackPosition();
 
+        // disable un-reversible swiped items
+        for (int i = state.topIndex - 1; i > reverseIndex; i--) {
+            state.swipedItems.get(i).setEnable(false);
+        }
+        state.swipedItems.remove(reverseIndex);
         state.topIndex = reverseIndex;
-        state.swipedItems.remove(state.topIndex);
 
         if (cardEventListener != null) {
             cardEventListener.onCardReversed();
@@ -596,7 +603,9 @@ public class CardStackView extends FrameLayout {
 
     private int findAvailableIndex(int index, boolean moveForward, boolean directionLimit) {
         while (state.swipedItems.get(index) != null) {
-            if (directionLimit && !option.reverseDirection.contains(state.swipedItems.get(index).getDirection())) {
+            SwipedItem swipedItem = state.swipedItems.get(index);
+            if ((directionLimit && !option.reverseDirection.contains(swipedItem.getDirection()))
+                    || !swipedItem.isEnable()) {
                 index = index + (moveForward ? 1 : -1);
             } else {
                 break;
