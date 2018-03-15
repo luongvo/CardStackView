@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.database.DataSetObserver;
 import android.graphics.Point;
+import android.support.annotation.NonNull;
 import android.support.v4.view.ViewCompat;
 import android.util.AttributeSet;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.widget.FrameLayout;
 import com.yuyakaido.android.cardstackview.internal.CardContainerView;
 import com.yuyakaido.android.cardstackview.internal.CardStackOption;
 import com.yuyakaido.android.cardstackview.internal.CardStackState;
+import com.yuyakaido.android.cardstackview.internal.SwipedItem;
 import com.yuyakaido.android.cardstackview.internal.Util;
 
 import java.lang.reflect.Constructor;
@@ -108,6 +110,7 @@ public class CardStackView extends FrameLayout {
         setSwipeEnabled(array.getBoolean(R.styleable.CardStackView_swipeEnabled, option.isSwipeEnabled));
         setMultipleReverseEnabled(array.getBoolean(R.styleable.CardStackView_multipleReverseEnabled, option.isMultipleReverseEnabled));
         setSwipeDirection(SwipeDirection.from(array.getInt(R.styleable.CardStackView_swipeDirection, 0)));
+        setReverseDirection(SwipeDirection.from(array.getInt(R.styleable.CardStackView_reverseDirection, 0)));
         setLeftOverlay(array.getResourceId(R.styleable.CardStackView_leftOverlay, 0));
         setRightOverlay(array.getResourceId(R.styleable.CardStackView_rightOverlay, 0));
         setBottomOverlay(array.getResourceId(R.styleable.CardStackView_bottomOverlay, 0));
@@ -198,7 +201,17 @@ public class CardStackView extends FrameLayout {
     }
 
     private void loadNextView() {
-        int lastIndex = state.topIndex + option.visibleCount - 1;
+        // increase index by unavailable items
+        int lastIndex = state.topIndex;
+        int i = 1;
+        while (i < option.visibleCount) {
+            SwipedItem swipedItem = state.swipedItems.get(lastIndex + 1);
+            if (swipedItem == null || swipedItem.isEnable()) {
+                i++;
+            }
+            lastIndex++;
+        }
+
         boolean hasNextCard = lastIndex < adapter.getCount();
         if (hasNextCard) {
             CardContainerView container = getBottomView();
@@ -361,11 +374,18 @@ public class CardStackView extends FrameLayout {
 
         initializeCardStackPosition();
 
-        if (!option.isMultipleReverseEnabled) {
-            state.swipedItems.clear();
+        if (!option.isMultipleReverseEnabled && option.reverseDirection.contains(direction)) {
+            // disable previous reversible swiped items for single reversing mode
+            for (int i = 0; i < state.swipedItems.size(); i++) {
+                SwipedItem swipedItem = state.swipedItems.valueAt(i);
+                if (option.reverseDirection.contains(swipedItem.getDirection())) {
+                    swipedItem.setEnable(false);
+                }
+            }
         }
-        state.swipedItems.put(state.topIndex, point);
-        state.topIndex++;
+
+        state.swipedItems.put(state.topIndex, new SwipedItem(point, direction));
+        state.topIndex = findAvailableIndex(state.topIndex + 1, true);
 
         if (cardEventListener != null) {
             cardEventListener.onCardSwiped(direction);
@@ -377,12 +397,15 @@ public class CardStackView extends FrameLayout {
         getTopView().setContainerEventListener(containerEventListener);
     }
 
-    private void executePostReverseTask() {
+    private void executePostReverseTask(int reverseIndex) {
         initializeCardStackPosition();
 
-        state.topIndex--;
-        state.swipedItems.remove(state.topIndex);
-        state.isReversing = false;
+        // disable un-reversible swiped items
+        for (int i = state.topIndex - 1; i > reverseIndex; i--) {
+            state.swipedItems.get(i).setEnable(false);
+        }
+        state.swipedItems.remove(reverseIndex);
+        state.topIndex = reverseIndex;
 
         if (cardEventListener != null) {
             cardEventListener.onCardReversed();
@@ -461,11 +484,15 @@ public class CardStackView extends FrameLayout {
         option.isMultipleReverseEnabled = isMultipleReverseEnabled;
     }
 
-    public void setSwipeDirection(List<SwipeDirection> swipeDirection) {
+    public void setSwipeDirection(@NonNull List<SwipeDirection> swipeDirection) {
         option.swipeDirection = swipeDirection;
         if (adapter != null) {
             initialize(false);
         }
+    }
+
+    public void setReverseDirection(@NonNull List<SwipeDirection> reverseDirection) {
+        option.reverseDirection = reverseDirection;
     }
 
     public void setLeftOverlay(int leftOverlay) {
@@ -528,16 +555,23 @@ public class CardStackView extends FrameLayout {
     }
 
     public void reverse() {
-        int reverseIndex = state.topIndex - 1;
-        if (isReversible() && reverseIndex >= 0) {
+        reverse(true);
+    }
+
+    public void reverse(boolean directionLimit) {
+        final int reverseIndex = findAvailableIndex(state.topIndex - 1, false, directionLimit);
+        SwipedItem swipedItem = state.swipedItems.get(reverseIndex);
+        if (!state.isReversing && swipedItem != null) {
             state.isReversing = true;
             CardContainerView container = getBottomView();
             ViewGroup parent = container.getContentContainer();
             View prevView = adapter.getView(reverseIndex, null, parent);
-            performReverse(state.swipedItems.get(reverseIndex), prevView, new AnimatorListenerAdapter() {
+
+            performReverse(swipedItem.getPoint(), prevView, new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animator) {
-                    executePostReverseTask();
+                    executePostReverseTask(reverseIndex);
+                    state.isReversing = false;
                 }
             });
         }
@@ -556,6 +590,27 @@ public class CardStackView extends FrameLayout {
     }
 
     public boolean isReversible() {
-        return !state.isReversing && state.swipedItems != null && state.swipedItems.size() > 0;
+        return isReversible(true);
+    }
+
+    public boolean isReversible(boolean directionLimit) {
+        return findAvailableIndex(state.topIndex - 1, false, directionLimit) >= 0;
+    }
+
+    private int findAvailableIndex(int index, boolean moveForward) {
+        return findAvailableIndex(index, moveForward, true);
+    }
+
+    private int findAvailableIndex(int index, boolean moveForward, boolean directionLimit) {
+        while (state.swipedItems.get(index) != null) {
+            SwipedItem swipedItem = state.swipedItems.get(index);
+            if ((directionLimit && !option.reverseDirection.contains(swipedItem.getDirection()))
+                    || !swipedItem.isEnable()) {
+                index = index + (moveForward ? 1 : -1);
+            } else {
+                break;
+            }
+        }
+        return index;
     }
 }
