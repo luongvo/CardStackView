@@ -316,8 +316,8 @@ public class CardStackView extends FrameLayout {
         } else {
             showOverlay = false;
         }
-        if(showOverlay) {
-            if(overlayAnimatorSet != null) {
+        if (showOverlay) {
+            if (overlayAnimatorSet != null) {
                 getTopView().setOverlayAlpha(overlayAnimatorSet);
             } else {
                 getTopView().setOverlayAlpha(1f);
@@ -377,6 +377,11 @@ public class CardStackView extends FrameLayout {
     }
 
     private void executePostSwipeTask(Point point, SwipeDirection direction) {
+        // don't swipe card if swipeDirection is updated to lock this direction when the card is moving
+        if (!option.swipeDirection.contains(direction)) {
+            return;
+        }
+
         reorderForSwipe();
 
         initializeCardStackPosition();
