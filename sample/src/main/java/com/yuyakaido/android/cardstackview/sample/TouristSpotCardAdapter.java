@@ -14,6 +14,7 @@ public class TouristSpotCardAdapter extends ArrayAdapter<TouristSpot> {
 
     public TouristSpotCardAdapter(Context context) {
         super(context, 0);
+        setNotifyOnChange(false);
     }
 
     @Override
@@ -36,6 +37,12 @@ public class TouristSpotCardAdapter extends ArrayAdapter<TouristSpot> {
         Glide.with(getContext()).load(spot.url).into(holder.image);
 
         return contentView;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        setNotifyOnChange(false);
     }
 
     private static class ViewHolder {
