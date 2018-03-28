@@ -55,11 +55,9 @@ public class CardStackView extends FrameLayout {
             if (state.isPaginationReserved) {
                 state.isPaginationReserved = false;
             } else {
-                boolean isSameCount = state.lastCount == adapter.getCount();
-                shouldReset = !isSameCount;
+                shouldReset = true;
             }
             initialize(shouldReset);
-            state.lastCount = adapter.getCount();
         }
     };
     private CardContainerView.ContainerEventListener containerEventListener = new CardContainerView.ContainerEventListener() {
@@ -439,7 +437,6 @@ public class CardStackView extends FrameLayout {
         }
         this.adapter = adapter;
         this.adapter.registerDataSetObserver(dataSetObserver);
-        this.state.lastCount = adapter.getCount();
         initialize(true);
     }
 
