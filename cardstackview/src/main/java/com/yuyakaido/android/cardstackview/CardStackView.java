@@ -493,11 +493,21 @@ public class CardStackView extends FrameLayout {
         option.isMultipleReverseEnabled = isMultipleReverseEnabled;
     }
 
+    @NonNull
+    public List<SwipeDirection> getSwipeDirection() {
+        return option.swipeDirection;
+    }
+
     public void setSwipeDirection(@NonNull List<SwipeDirection> swipeDirection) {
         option.swipeDirection = swipeDirection;
         if (adapter != null) {
             initialize(false);
         }
+    }
+
+    @NonNull
+    public List<SwipeDirection> getReverseDirection() {
+        return option.reverseDirection;
     }
 
     public void setReverseDirection(@NonNull List<SwipeDirection> reverseDirection) {
